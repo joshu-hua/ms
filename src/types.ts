@@ -1,20 +1,21 @@
 export enum CellValue {
 	Empty = 0,
-	One,
-	Two,
-	Three,
-	Four,
-	Five,
-	Six,
-	Seven,
-	Eight,
+	One = 1,
+	Two = 2,
+	Three = 3,
+	Four = 4,
+	Five = 5,
+	Six = 6,
+	Seven = 7,
+	Eight = 8,
 	Mine,
 }
 
-export interface Cell {
+export interface CellType {
 	value: CellValue;
 	isRevealed: boolean;
 	isFlagged: boolean;
+	isMine: boolean;
 	row: number;
 	col: number;
 }
@@ -25,7 +26,7 @@ export enum GameStatus {
 	Lost,
 }
 
-export type Board = Cell[][];
+export type Board = CellType[][];
 
 export interface GameSettings {
 	rows: number;

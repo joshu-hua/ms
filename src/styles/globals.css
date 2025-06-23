@@ -24,3 +24,44 @@ body {
 	color: var(--foreground);
 	font-family: Arial, Helvetica, sans-serif;
 }
+
+.mine-count-1 {
+	color: blue;
+	font-weight: bold;
+	font-size: 1.5em;
+}
+.mine-count-2 {
+	color: green;
+	font-weight: bold;
+	font-size: 1.5em;
+}
+.mine-count-3 {
+	color: red;
+	font-weight: bold;
+	font-size: 1.5em;
+}
+.mine-count-4 {
+	color: purple;
+	font-weight: bold;
+	font-size: 1.5em;
+}
+.mine-count-5 {
+	color: orange;
+	font-weight: bold;
+	font-size: 1.5em;
+}
+.mine-count-6 {
+	color: pink;
+	font-weight: bold;
+	font-size: 1.5em;
+}
+.mine-count-7 {
+	color: brown;
+	font-weight: bold;
+	font-size: 1.5em;
+}
+.mine-count-8 {
+	color: gray;
+	font-weight: bold;
+	font-size: 1.5em;
+}

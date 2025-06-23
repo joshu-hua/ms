@@ -1,6 +1,6 @@
 import { Box } from '@chakra-ui/react';
 import React, { useState } from 'react'
-import type { Cell } from '@/types';
+import type { CellType } from '@/types';
 
 interface CellProps {
     isMine: boolean;
@@ -25,14 +25,15 @@ const Cell = ({ isMine, isRevealed, isFlagged, adjacentMines, onReveal, onFlag }
                 w="40px"
                 h="40px"
                 {...(isRevealed ? { bg: 'gray.300' } : { bg: 'gray.200' })}
-                _hover={!isRevealed ? { bg: 'gray.300' } : {}}
+                _hover={!isRevealed ? { bg: 'gray.400' } : {}}
+                borderRadius={'md'}
             >
                 {isRevealed ? (
                     isMine ? (
                         '💣' // Display mine
                     ) : (
                         adjacentMines > 0 ? (
-                            adjacentMines // Display number of adjacent mines
+                            <span className={`mine-count-${adjacentMines}`}>{adjacentMines}</span> // Display number of adjacent mines
                         ) : (
                             ' ' // Empty cell
                         )
