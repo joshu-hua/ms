@@ -24,9 +24,9 @@ const Cell = ({ isMine, isRevealed, isFlagged, adjacentMines, onReveal, onFlag }
                 }}
                 w="40px"
                 h="40px"
-                {...(isRevealed ? { bg: 'gray.300' } : { bg: 'gray.200' })}
+                {...(isRevealed ? { bg: 'gray.400' } : { bg: 'gray.200' })}
                 _hover={!isRevealed ? { bg: 'gray.400' } : {}}
-                borderRadius={'md'}
+                borderRadius={'sm'}
             >
                 {isRevealed ? (
                     isMine ? (

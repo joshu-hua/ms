@@ -1,12 +1,12 @@
 import Cell from '@/components/Cell';
 import { CellType, CellValue } from '@/types';
-import { Box, Grid, Heading } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, Heading, Select } from '@chakra-ui/react';
 import React, { useState, useEffect } from 'react'
 
 const Board = () => {
 
     const [grid, setGrid] = useState<CellType[][]>([]);
-    const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
+    const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
     const [gameSettings, setGameSettings] = useState({
         rows: 10,
         cols: 10,
@@ -25,15 +25,15 @@ const Board = () => {
             currentSettings = { rows: 16, cols: 30, mines: 99 };
         }
         setGameSettings(currentSettings);
-        resetGame(currentSettings.rows, currentSettings.cols, currentSettings.mines);
+        resetGame(currentSettings.rows, currentSettings.cols);
     }, [difficulty]);
 
     const handleDifficultyChange = (newDifficulty: 'easy' | 'medium' | 'hard') => {
         setDifficulty(newDifficulty);
     }
 
-    const resetGame = (rows: number, cols: number, mines: number) => {
-        // 1. Initialize the grid
+    const resetGame = (rows: number, cols: number) => {
+        // 1. Initialize a blank grid without mines
         const newGrid = Array.from({ length: rows }, (_, rowIndex) =>
             Array.from({ length: cols }, (_, colIndex) => ({
                 isRevealed: false,
@@ -45,49 +45,53 @@ const Board = () => {
                 col: colIndex
             }))
         );
-
-        // 2. Place mines directly on the newly created grid
-        let placedMines = 0;
-        while (placedMines < mines) {
-            const row = Math.floor(Math.random() * rows);
-            const col = Math.floor(Math.random() * cols);
-            if (!newGrid[row][col].isMine) {
-                newGrid[row][col].isMine = true;
-                placedMines++;
-            }
-        }
-
-        // calculating adjacent mines for each cell
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                if (newGrid[row][col].isMine) continue;
-
-                let mineCount = 0;
-                // Check all 8 surrounding cells
-                for (let r = -1; r <= 1; r++) {
-                    for (let c = -1; c <= 1; c++) {
-                        if (r === 0 && c === 0) continue; // Skip the cell itself
-                        const newRow = row + r;
-                        const newCol = col + c;
-                        if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
-                            if (newGrid[newRow][newCol].isMine) {
-                                mineCount++;
-                            }
-                        }
-                    }
-                }
-                newGrid[row][col].value = mineCount;
-            }
-        }
-
-        // 3. Set the final grid into state once
+        // 2. Reset first click status
+        setIsFirstClick(true);
+        // 3. Set the blank grid
         setGrid(newGrid);
     }
 
     const handleReveal = (row: number, col: number) => {
-        const newGrid = grid.map(row =>
+        let newGrid = grid.map(row =>
             row.map(cell => ({ ...cell }))
         );
+
+        if (isFirstClick) {
+            setIsFirstClick(false); // It's no longer the first click
+
+            // 1. Place mines, ensuring the first clicked cell is safe
+            let placedMines = 0;
+            while (placedMines < gameSettings.mines) {
+                const r = Math.floor(Math.random() * gameSettings.rows);
+                const c = Math.floor(Math.random() * gameSettings.cols);
+
+                const isSafeZone = Math.abs(r - row) <= 1 && Math.abs(c - col) <= 1;
+
+                if (!isSafeZone && !newGrid[r][c].isMine) {
+                    newGrid[r][c].isMine = true;
+                    placedMines++;
+                }
+            }
+
+            // 2. Calculate adjacent mine counts for the entire grid
+            for (let r = 0; r < gameSettings.rows; r++) {
+                for (let c = 0; c < gameSettings.cols; c++) {
+                    if (newGrid[r][c].isMine) continue;
+                    let mineCount = 0;
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            if (dr === 0 && dc === 0) continue;
+                            const nr = r + dr;
+                            const nc = c + dc;
+                            if (nr >= 0 && nr < gameSettings.rows && nc >= 0 && nc < gameSettings.cols && newGrid[nr][nc].isMine) {
+                                mineCount++;
+                            }
+                        }
+                    }
+                    newGrid[r][c].value = mineCount;
+                }
+            }
+        }
 
         function revealAdjacentCells(row: number, col: number) {
             for (let r = -1; r <= 1; r++) {
@@ -120,7 +124,6 @@ const Board = () => {
         }
 
         if (cell.isMine) {
-            // TODO: don't 
             // Reveal all mines on the board
             newGrid.forEach(row => {
                 row.forEach(cell => {
@@ -131,12 +134,24 @@ const Board = () => {
             });
 
             setGrid(newGrid);
-            alert('Game Over! You hit a mine.');
             return;
         }
 
         setGrid(newGrid);
     }
+
+    const handleFlag = (row: number, col: number) => {
+        const newGrid = grid.map(row =>
+            row.map(cell => ({ ...cell }))
+        );
+
+        const cell = newGrid[row][col];
+        if (cell.isRevealed) return; // Can't flag a revealed cell
+
+        cell.isFlagged = !cell.isFlagged; // Toggle flag state
+        setGrid(newGrid);
+    }
+
 
 
 
@@ -145,10 +160,17 @@ const Board = () => {
     return (
         <>
             <Box>
-                <Heading as="h1" size="2xl" mb={8}>
-                    Minesweeper
-                </Heading>
-                <Grid templateColumns={`repeat(${gameSettings.cols}, 1fr)`} gap={1}>
+                <Flex mb={4} justifyContent="space-evenly" alignItems="center">
+                    <Select value={difficulty} onChange={(e) => handleDifficultyChange(e.target.value as 'easy' | 'medium' | 'hard')}>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </Select>
+                    <Button minW={'50%'} ml={4} colorScheme='blue' onClick={() => resetGame(gameSettings.rows, gameSettings.cols)}>
+                        Reset Game
+                    </Button>
+                </Flex>
+                <Grid templateColumns={`repeat(${gameSettings.cols}, 1fr)`} gap={'2px'}>
                     {grid.map((row, rowIndex) =>
                         row.map((cell, colIndex) => (
                             <Cell
@@ -158,12 +180,12 @@ const Board = () => {
                                 isFlagged={cell.isFlagged}
                                 adjacentMines={cell.value}
                                 onReveal={() => handleReveal(rowIndex, colIndex)}
-                                onFlag={() => console.log('Flagging not implemented yet')}
+                                onFlag={() => handleFlag(rowIndex, colIndex)}
                             />
                         ))
                     )}
                 </Grid>
-            </Box>
+            </Box >
         </>
     )
 }
