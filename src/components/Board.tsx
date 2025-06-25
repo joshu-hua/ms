@@ -52,28 +52,25 @@ const Board = () => {
     }
 
     const handleReveal = (row: number, col: number) => {
-        let newGrid = grid.map(row =>
-            row.map(cell => ({ ...cell }))
-        );
+        let gridToProcess = grid;
 
         if (isFirstClick) {
-            setIsFirstClick(false); // It's no longer the first click
+            setIsFirstClick(false);
+            let newGrid = grid.map(r => r.map(c => ({ ...c })));
 
-            // 1. Place mines, ensuring the first clicked cell is safe
+            // Place mines, avoiding the first click area
             let placedMines = 0;
             while (placedMines < gameSettings.mines) {
                 const r = Math.floor(Math.random() * gameSettings.rows);
                 const c = Math.floor(Math.random() * gameSettings.cols);
-
                 const isSafeZone = Math.abs(r - row) <= 1 && Math.abs(c - col) <= 1;
-
                 if (!isSafeZone && !newGrid[r][c].isMine) {
                     newGrid[r][c].isMine = true;
                     placedMines++;
                 }
             }
 
-            // 2. Calculate adjacent mine counts for the entire grid
+            // Calculate adjacent mine counts
             for (let r = 0; r < gameSettings.rows; r++) {
                 for (let c = 0; c < gameSettings.cols; c++) {
                     if (newGrid[r][c].isMine) continue;
@@ -91,54 +88,64 @@ const Board = () => {
                     newGrid[r][c].value = mineCount;
                 }
             }
+            gridToProcess = newGrid;
         }
 
-        function revealAdjacentCells(row: number, col: number) {
-            for (let r = -1; r <= 1; r++) {
-                for (let c = -1; c <= 1; c++) {
-                    if (r === 0 && c === 0) continue;
-                    const newRow = row + r;
-                    const newCol = col + c;
-                    if (newRow >= 0 && newRow < gameSettings.rows && newCol >= 0 && newCol < gameSettings.cols) {
-                        const adjacentCell = newGrid[newRow][newCol];
-                        if (!adjacentCell.isRevealed && !adjacentCell.isMine) {
-                            adjacentCell.isRevealed = true;
-                            if (adjacentCell.value === CellValue.Empty) {
-                                revealAdjacentCells(newRow, newCol); // recursively reveal adjacent cells if they're empty
+        const finalGrid = revealCell(gridToProcess, row, col);
+
+
+        setGrid(finalGrid);
+    };
+
+    const revealCell = (grid: CellType[][], row: number, col: number): CellType[][] => {
+        let newGrid = grid.map(r => r.map(c => ({ ...c })));
+        const cell = newGrid[row][col];
+
+        if (cell.isRevealed || cell.isFlagged) {
+            return newGrid; // Return the grid unmodified
+        }
+
+        // Use a queue for an iterative flood fill
+        const queue: { row: number, col: number }[] = [{ row, col }];
+        newGrid[row][col].isRevealed = true;
+
+        // If the first revealed cell is a mine, end the game
+        if (cell.isMine) {
+            newGrid.forEach(r => r.forEach(c => {
+                if (c.isMine) c.isRevealed = true;
+            }));
+            return newGrid;
+        }
+
+        while (queue.length > 0) {
+            const current = queue.shift()!;
+            const currentCell = newGrid[current.row][current.col];
+
+            // If the current cell is empty, reveal its neighbors
+            if (currentCell.value === CellValue.Empty) {
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        if (dr === 0 && dc === 0) continue;
+                        const nr = current.row + dr;
+                        const nc = current.col + dc;
+
+                        if (nr >= 0 && nr < gameSettings.rows && nc >= 0 && nc < gameSettings.cols) {
+                            const neighbor = newGrid[nr][nc];
+                            if (!neighbor.isRevealed && !neighbor.isFlagged) {
+                                neighbor.isRevealed = true;
+                                // If the neighbor is also empty, add it to the queue to be processed
+                                if (neighbor.value === CellValue.Empty) {
+                                    queue.push({ row: nr, col: nc });
+                                }
                             }
                         }
                     }
                 }
             }
-
-            setGrid(newGrid);
         }
 
-        const cell = newGrid[row][col];
-        if (cell.isRevealed || cell.isFlagged) return;
-
-        cell.isRevealed = true;
-        if (cell.value === CellValue.Empty && !cell.isMine) {
-            // If the cell is empty, reveal adjacent cells
-            revealAdjacentCells(row, col);
-        }
-
-        if (cell.isMine) {
-            // Reveal all mines on the board
-            newGrid.forEach(row => {
-                row.forEach(cell => {
-                    if (cell.isMine) {
-                        cell.isRevealed = true;
-                    }
-                });
-            });
-
-            setGrid(newGrid);
-            return;
-        }
-
-        setGrid(newGrid);
-    }
+        return newGrid;
+    };
 
     const handleFlag = (row: number, col: number) => {
         const newGrid = grid.map(row =>
@@ -151,11 +158,6 @@ const Board = () => {
         cell.isFlagged = !cell.isFlagged; // Toggle flag state
         setGrid(newGrid);
     }
-
-
-
-
-
 
     return (
         <>
@@ -170,7 +172,7 @@ const Board = () => {
                         Reset Game
                     </Button>
                 </Flex>
-                <Grid templateColumns={`repeat(${gameSettings.cols}, 1fr)`} gap={'2px'}>
+                <Grid templateColumns={`repeat(${gameSettings.cols}, 1fr)`} gap={'0px'} border={'1px solid rgb(141, 140, 155)'}>
                     {grid.map((row, rowIndex) =>
                         row.map((cell, colIndex) => (
                             <Cell
