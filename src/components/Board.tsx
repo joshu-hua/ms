@@ -159,6 +159,56 @@ const Board = () => {
         setGrid(newGrid);
     }
 
+    const handleChord = (row: number, col: number) => {
+        let newGrid = grid.map(row =>
+            row.map(cell => ({ ...cell }))
+        );
+
+        const cell = newGrid[row][col];
+        if (!cell.isRevealed || cell.isFlagged || (cell.value == CellValue.Empty)) return; // Can't chord on unrevealed or flagged or empty cells
+
+        let adjacentFlags = 0;
+        for (let dr = -1; dr <= 1; dr++) {
+            for (let dc = -1; dc <= 1; dc++) {
+                if (dr === 0 && dc === 0) continue;
+                const nr = row + dr;
+                const nc = col + dc;
+                if (nr >= 0 && nr < gameSettings.rows && nc >= 0 && nc < gameSettings.cols) {
+                    const neighbor = newGrid[nr][nc];
+                    if (neighbor.isFlagged) {
+                        adjacentFlags++;
+                    }
+                }
+            }
+        }
+
+        if (adjacentFlags === cell.value) {
+            // If the number of adjacent flags matches the cell's value, reveal all adjacent unrevealed cells
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    if (dr === 0 && dc === 0) continue;
+                    const nr = row + dr;
+                    const nc = col + dc;
+                    if (nr >= 0 && nr < gameSettings.rows && nc >= 0 && nc < gameSettings.cols) {
+                        const neighbor = newGrid[nr][nc];
+                        if (!neighbor.isRevealed && !neighbor.isFlagged) {
+                            // If the neighbor is empty, reveal its neighbors as well
+                            newGrid = revealCell(newGrid, nr, nc);
+                        }
+                    }
+                }
+            }
+
+
+        } else {
+            console.log("should highlight adjacent cells that are unrevealed and not flagged");
+        }
+
+        setGrid(newGrid);
+    }
+
+
+
     return (
         <>
             <Box>
@@ -183,6 +233,7 @@ const Board = () => {
                                 adjacentMines={cell.value}
                                 onReveal={() => handleReveal(rowIndex, colIndex)}
                                 onFlag={() => handleFlag(rowIndex, colIndex)}
+                                onChord={() => handleChord(rowIndex, colIndex)}
                             />
                         ))
                     )}

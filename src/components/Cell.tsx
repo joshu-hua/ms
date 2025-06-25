@@ -9,9 +9,18 @@ interface CellProps {
     adjacentMines: number;
     onReveal: () => void;
     onFlag: () => void;
+    onChord: () => void;
 }
 
-const Cell = ({ isMine, isRevealed, isFlagged, adjacentMines, onReveal, onFlag }: CellProps) => {
+const Cell = ({ isMine, isRevealed, isFlagged, adjacentMines, onReveal, onFlag, onChord }: CellProps) => {
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        if (e.buttons === 3 || e.button === 1) {
+            e.preventDefault();
+            onChord();
+        }
+    }
+
     return (
         <>
             <Box
@@ -22,6 +31,7 @@ const Cell = ({ isMine, isRevealed, isFlagged, adjacentMines, onReveal, onFlag }
                     e.preventDefault();
                     onFlag(); // Call flag function
                 }}
+                onMouseDown={handleMouseDown}
                 w="40px"
                 h="40px"
                 {...(isRevealed ? { bg: 'gray.400', border: '1px solid rgb(141, 140, 155)' } : { bg: 'gray.200', border: '1px solid rgb(170, 168, 190)' })}
