@@ -1,10 +1,28 @@
 import Cell from '@/components/Cell';
 import { CellType, CellValue } from '@/types';
-import { Box, Button, Flex, Grid, Heading, Select } from '@chakra-ui/react';
-import React, { useState, useEffect } from 'react'
+import {
+    Alert,
+    AlertDialog,
+    AlertDialogBody,
+    AlertDialogContent,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogOverlay,
+    AlertIcon,
+    Box,
+    Button,
+    Flex,
+    Grid,
+    Heading,
+    Select,
+    useDisclosure
+} from '@chakra-ui/react';
+import React, { useState, useEffect, useRef } from 'react'
+import { useGameTimer } from '@/hooks/useGameTimer';
+import { start } from 'repl';
 
 const Board = () => {
-
+    const { time, formattedTime, startTimer, stopTimer, resetTimer, isRunning } = useGameTimer();
     const [grid, setGrid] = useState<CellType[][]>([]);
     const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
     const [gameSettings, setGameSettings] = useState({
@@ -13,6 +31,11 @@ const Board = () => {
         mines: 10
     });
     const [isFirstClick, setIsFirstClick] = useState(true);
+    const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
+
+    // For the AlertDialog
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const cancelRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         // Define settings locally to avoid using stale state from gameSettings
@@ -27,6 +50,13 @@ const Board = () => {
         setGameSettings(currentSettings);
         resetGame(currentSettings.rows, currentSettings.cols);
     }, [difficulty]);
+
+    // Open dialog when game ends
+    useEffect(() => {
+        if (gameState === 'won' || gameState === 'lost') {
+            onOpen();
+        }
+    }, [gameState, onOpen]);
 
     const handleDifficultyChange = (newDifficulty: 'easy' | 'medium' | 'hard') => {
         setDifficulty(newDifficulty);
@@ -47,14 +77,28 @@ const Board = () => {
         );
         // 2. Reset first click status
         setIsFirstClick(true);
-        // 3. Set the blank grid
+        // 3. Reset game state
+        setGameState('playing');
+        // 4. Close dialog if open
+        onClose();
+        // 5. Set the blank grid
         setGrid(newGrid);
+        // 6. Reset timer
+        resetTimer();
+    }
+
+    const handlePlayAgain = () => {
+        resetGame(gameSettings.rows, gameSettings.cols);
     }
 
     const handleReveal = (row: number, col: number) => {
+        // Don't allow reveals if game is over
+        if (gameState !== 'playing') return;
+
         let gridToProcess = grid;
 
         if (isFirstClick) {
+            startTimer();
             setIsFirstClick(false);
             let newGrid = grid.map(r => r.map(c => ({ ...c })));
 
@@ -93,6 +137,9 @@ const Board = () => {
 
         const finalGrid = revealCell(gridToProcess, row, col);
 
+        // Check game state after revealing
+        const newGameState = checkGameState(finalGrid);
+        setGameState(newGameState);
 
         setGrid(finalGrid);
     };
@@ -148,6 +195,9 @@ const Board = () => {
     };
 
     const handleFlag = (row: number, col: number) => {
+        // Don't allow flagging if game is over
+        if (gameState !== 'playing') return;
+
         const newGrid = grid.map(row =>
             row.map(cell => ({ ...cell }))
         );
@@ -156,10 +206,18 @@ const Board = () => {
         if (cell.isRevealed) return; // Can't flag a revealed cell
 
         cell.isFlagged = !cell.isFlagged; // Toggle flag state
+
+        // Check game state after flagging
+        const newGameState = checkGameState(newGrid);
+        setGameState(newGameState);
+
         setGrid(newGrid);
     }
 
     const handleChord = (row: number, col: number) => {
+        // Don't allow chording if game is over
+        if (gameState !== 'playing') return;
+
         let newGrid = grid.map(row =>
             row.map(cell => ({ ...cell }))
         );
@@ -199,6 +257,9 @@ const Board = () => {
                 }
             }
 
+            // Check game state after chording
+            const newGameState = checkGameState(newGrid);
+            setGameState(newGameState);
 
         } else {
             console.log("should highlight adjacent cells that are unrevealed and not flagged");
@@ -207,7 +268,34 @@ const Board = () => {
         setGrid(newGrid);
     }
 
+    const checkGameState = (grid: CellType[][]): 'playing' | 'won' | 'lost' => {
+        // Check if any mine is revealed (game lost)
+        for (let r = 0; r < gameSettings.rows; r++) {
+            for (let c = 0; c < gameSettings.cols; c++) {
+                if (grid[r][c].isMine && grid[r][c].isRevealed) {
+                    stopTimer();
+                    return 'lost';
+                }
+            }
+        }
 
+        // Check if all non-mine cells are revealed (game won)
+        let unrevealedNonMines = 0;
+        for (let r = 0; r < gameSettings.rows; r++) {
+            for (let c = 0; c < gameSettings.cols; c++) {
+                if (!grid[r][c].isMine && !grid[r][c].isRevealed) {
+                    unrevealedNonMines++;
+                }
+            }
+        }
+
+        if (unrevealedNonMines === 0) {
+            stopTimer();
+            return 'won';
+        }
+
+        return 'playing';
+    };
 
     return (
         <>
@@ -221,7 +309,11 @@ const Board = () => {
                     <Button minW={'50%'} ml={4} colorScheme='blue' onClick={() => resetGame(gameSettings.rows, gameSettings.cols)}>
                         Reset Game
                     </Button>
+                    <Heading size="md" ml={4}>
+                        {formattedTime}
+                    </Heading>
                 </Flex>
+
                 <Grid templateColumns={`repeat(${gameSettings.cols}, 1fr)`} gap={'0px'} border={'1px solid rgb(141, 140, 155)'}>
                     {grid.map((row, rowIndex) =>
                         row.map((cell, colIndex) => (
@@ -238,6 +330,42 @@ const Board = () => {
                         ))
                     )}
                 </Grid>
+
+                {/* Game End AlertDialog */}
+                <AlertDialog
+                    isOpen={isOpen}
+                    leastDestructiveRef={cancelRef}
+                    onClose={onClose}
+                    isCentered
+                    closeOnOverlayClick={false}
+                >
+                    <AlertDialogOverlay>
+                        <AlertDialogContent>
+                            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+                                {gameState === 'won' ? ' You Won!' : ' Game Over!'}
+                            </AlertDialogHeader>
+
+                            <AlertDialogBody>
+                                {gameState === 'won'
+                                    ? `Time: ${formattedTime}`
+                                    : `Time: --`}
+                            </AlertDialogBody>
+
+                            <AlertDialogFooter>
+                                <Button ref={cancelRef} onClick={onClose}>
+                                    Close
+                                </Button>
+                                <Button
+                                    colorScheme={gameState === 'won' ? 'green' : 'blue'}
+                                    onClick={handlePlayAgain}
+                                    ml={3}
+                                >
+                                    Play Again
+                                </Button>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialogOverlay>
+                </AlertDialog>
             </Box >
         </>
     )
