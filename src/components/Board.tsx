@@ -19,7 +19,6 @@ import {
 } from '@chakra-ui/react';
 import React, { useState, useEffect, useRef } from 'react'
 import { useGameTimer } from '@/hooks/useGameTimer';
-import { start } from 'repl';
 
 const Board = () => {
     const { time, formattedTime, startTimer, stopTimer, resetTimer, isRunning } = useGameTimer();
@@ -32,6 +31,7 @@ const Board = () => {
     });
     const [isFirstClick, setIsFirstClick] = useState(true);
     const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
+    const [flags, setFlags] = useState<number>(0);
 
     // For the AlertDialog
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -57,6 +57,21 @@ const Board = () => {
             onOpen();
         }
     }, [gameState, onOpen]);
+
+    // Prevent context menu when dialog is open
+    useEffect(() => {
+        const handleContextMenu = (e: MouseEvent) => {
+            if (isOpen) {
+                e.preventDefault();
+            }
+        };
+
+        document.addEventListener('contextmenu', handleContextMenu);
+
+        return () => {
+            document.removeEventListener('contextmenu', handleContextMenu);
+        };
+    }, [isOpen]);
 
     const handleDifficultyChange = (newDifficulty: 'easy' | 'medium' | 'hard') => {
         setDifficulty(newDifficulty);
@@ -85,6 +100,8 @@ const Board = () => {
         setGrid(newGrid);
         // 6. Reset timer
         resetTimer();
+        // 7. Reset flags count
+        setFlags(gameSettings.mines);
     }
 
     const handlePlayAgain = () => {
@@ -207,9 +224,13 @@ const Board = () => {
 
         cell.isFlagged = !cell.isFlagged; // Toggle flag state
 
-        // Check game state after flagging
-        const newGameState = checkGameState(newGrid);
-        setGameState(newGameState);
+        // Update flags count
+        if (cell.isFlagged) {
+            setFlags(flags - 1);
+        } else {
+            setFlags(flags + 1);
+        }
+
 
         setGrid(newGrid);
     }
@@ -306,13 +327,19 @@ const Board = () => {
                         <option value="medium">Medium</option>
                         <option value="hard">Hard</option>
                     </Select>
-                    <Button minW={'50%'} ml={4} colorScheme='blue' onClick={() => resetGame(gameSettings.rows, gameSettings.cols)}>
-                        Reset Game
+                </Flex>
+                <Flex mb={4} justifyContent="space-evenly" alignItems="center" bg={'gray.100'} p={4} borderRadius='md'>
+                    <Heading size="md">
+                        🚩{` ${flags}`}
+                    </Heading>
+                    <Button ml={4} colorScheme="blue" variant="ghost" onClick={() => resetGame(gameSettings.rows, gameSettings.cols)}>
+                        Reset
                     </Button>
                     <Heading size="md" ml={4}>
                         {formattedTime}
                     </Heading>
                 </Flex>
+
 
                 <Grid templateColumns={`repeat(${gameSettings.cols}, 1fr)`} gap={'0px'} border={'1px solid rgb(141, 140, 155)'}>
                     {grid.map((row, rowIndex) =>
@@ -342,7 +369,7 @@ const Board = () => {
                     <AlertDialogOverlay>
                         <AlertDialogContent>
                             <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-                                {gameState === 'won' ? ' You Won!' : ' Game Over!'}
+                                {gameState === 'won' ? '🎊 You Won!' : '💥 Game Over!'}
                             </AlertDialogHeader>
 
                             <AlertDialogBody>
