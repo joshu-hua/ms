@@ -18,6 +18,7 @@ export interface CellType {
 	isMine: boolean;
 	row: number;
 	col: number;
+	highlighted?: boolean;
 }
 
 export enum GameStatus {

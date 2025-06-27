@@ -48,7 +48,7 @@ const Board = () => {
             currentSettings = { rows: 16, cols: 30, mines: 99 };
         }
         setGameSettings(currentSettings);
-        resetGame(currentSettings.rows, currentSettings.cols);
+        resetGame(currentSettings.rows, currentSettings.cols, currentSettings.mines);
     }, [difficulty]);
 
     // Open dialog when game ends
@@ -77,7 +77,7 @@ const Board = () => {
         setDifficulty(newDifficulty);
     }
 
-    const resetGame = (rows: number, cols: number) => {
+    const resetGame = (rows: number, cols: number, mines: number) => {
         // 1. Initialize a blank grid without mines
         const newGrid = Array.from({ length: rows }, (_, rowIndex) =>
             Array.from({ length: cols }, (_, colIndex) => ({
@@ -101,11 +101,11 @@ const Board = () => {
         // 6. Reset timer
         resetTimer();
         // 7. Reset flags count
-        setFlags(gameSettings.mines);
+        setFlags(mines);
     }
 
     const handlePlayAgain = () => {
-        resetGame(gameSettings.rows, gameSettings.cols);
+        resetGame(gameSettings.rows, gameSettings.cols, gameSettings.mines);
     }
 
     const handleReveal = (row: number, col: number) => {
@@ -332,7 +332,7 @@ const Board = () => {
                     <Heading size="md">
                         🚩{` ${flags}`}
                     </Heading>
-                    <Button ml={4} colorScheme="blue" variant="ghost" onClick={() => resetGame(gameSettings.rows, gameSettings.cols)}>
+                    <Button ml={4} colorScheme="blue" variant="ghost" onClick={() => resetGame(gameSettings.rows, gameSettings.cols, gameSettings.mines)}>
                         Reset
                     </Button>
                     <Heading size="md" ml={4}>
