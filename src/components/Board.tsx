@@ -1,4 +1,5 @@
 import Cell from '@/components/Cell';
+import ColorModeToggle from '@/components/ColorModeToggle';
 import { CellType, CellValue } from '@/types';
 import {
     Alert,
@@ -320,22 +321,23 @@ const Board = () => {
 
     return (
         <>
-            <Box>
-                <Flex mb={4} justifyContent="space-evenly" alignItems="center">
+            <Box bg="app-bg">
+                <Flex mb={4} justifyContent="space-evenly" alignItems="center" gap={8}>
                     <Select value={difficulty} onChange={(e) => handleDifficultyChange(e.target.value as 'easy' | 'medium' | 'hard')}>
                         <option value="easy">Easy</option>
                         <option value="medium">Medium</option>
                         <option value="hard">Hard</option>
                     </Select>
+                    <ColorModeToggle />
                 </Flex>
-                <Flex mb={4} justifyContent="space-evenly" alignItems="center" bg={'gray.100'} p={4} borderRadius='md'>
-                    <Heading size="md">
+                <Flex mb={4} justifyContent="space-evenly" alignItems="center" bg="panel-bg" p={4} borderRadius='md'>
+                    <Heading size="md" color="text-primary">
                         🚩{` ${flags}`}
                     </Heading>
                     <Button ml={4} colorScheme="red" variant="outline" onClick={() => resetGame(gameSettings.rows, gameSettings.cols, gameSettings.mines)}>
                         Restart
                     </Button>
-                    <Heading size="md" ml={4}>
+                    <Heading size="md" ml={4} color="text-primary">
                         {`${formattedTime} (${time}s)`}
                     </Heading>
                 </Flex>
