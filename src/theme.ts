@@ -38,6 +38,10 @@ const semanticTokens = {
 			default: "gray.600",
 			_dark: "gray.300",
 		},
+		"text-link": {
+			default: "blue.500",
+			_dark: "blue.300",
+		},
 
 		// Border colors
 		"border-color": {

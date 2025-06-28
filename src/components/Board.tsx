@@ -328,7 +328,6 @@ const Board = () => {
                         <option value="medium">Medium</option>
                         <option value="hard">Hard</option>
                     </Select>
-                    <ColorModeToggle />
                 </Flex>
                 <Flex mb={4} justifyContent="space-evenly" alignItems="center" bg="panel-bg" p={4} borderRadius='md'>
                     <Heading size="md" color="text-primary">
