@@ -332,11 +332,11 @@ const Board = () => {
                     <Heading size="md">
                         🚩{` ${flags}`}
                     </Heading>
-                    <Button ml={4} colorScheme="blue" variant="ghost" onClick={() => resetGame(gameSettings.rows, gameSettings.cols, gameSettings.mines)}>
-                        Reset
+                    <Button ml={4} colorScheme="red" variant="outline" onClick={() => resetGame(gameSettings.rows, gameSettings.cols, gameSettings.mines)}>
+                        Restart
                     </Button>
                     <Heading size="md" ml={4}>
-                        {formattedTime}
+                        {`${formattedTime} (${time}s)`}
                     </Heading>
                 </Flex>
 
