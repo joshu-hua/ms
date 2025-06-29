@@ -22,7 +22,7 @@ const semanticTokens = {
 		},
 		"surface-bg": {
 			default: "gray.50",
-			_dark: "gray.800",
+			_dark: "gray.700",
 		},
 		"card-bg": {
 			default: "white",
@@ -72,6 +72,49 @@ const semanticTokens = {
 			default: "gray.100",
 			_dark: "gray.800",
 		},
+
+		// Input field colors
+		"input-bg": {
+			default: "white",
+			_dark: "gray.600",
+		},
+		"input-border": {
+			default: "gray.200",
+			_dark: "gray.500",
+		},
+		"input-focus-border": {
+			default: "blue.500",
+			_dark: "blue.300",
+		},
+	},
+};
+
+// 5. Component style overrides
+const components = {
+	Input: {
+		variants: {
+			outline: {
+				field: {
+					bg: "input-bg",
+					borderColor: "input-border",
+					color: "text-primary",
+					_hover: {
+						borderColor: "input-focus-border",
+					},
+					_focus: {
+						borderColor: "input-focus-border",
+						boxShadow:
+							"0 0 0 1px var(--chakra-colors-input-focus-border)",
+					},
+					_placeholder: {
+						color: "text-secondary",
+					},
+				},
+			},
+		},
+		defaultProps: {
+			variant: "outline",
+		},
 	},
 };
 
@@ -80,6 +123,7 @@ const theme = extendTheme({
 	config,
 	colors,
 	semanticTokens,
+	components,
 });
 
 export default theme;

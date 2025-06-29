@@ -294,7 +294,8 @@ const Signup = () => {
                                 w={"100%"}
                                 isLoading={isLoading}
                                 loadingText="Signing up"
-                                variant={"ghost"}
+                                variant={"outline"}
+                                colorScheme="blue"
                             >
                                 Submit
                             </Button>
