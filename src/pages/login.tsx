@@ -1,5 +1,4 @@
 import { useState, useReducer } from "react";
-import { useRouter } from "next/router";
 
 import {
     Box,
@@ -12,7 +11,6 @@ import {
     Spinner,
     Center
 } from "@chakra-ui/react";
-import Link from "next/link";
 import Header from "@/components/Header";
 
 type SignUpState = {
@@ -55,76 +53,75 @@ function signUpReducer(state: SignUpState, action: SignUpAction): SignUpState {
 
 const Signup = () => {
     const [state, dispatch] = useReducer(signUpReducer, initialState);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const router = useRouter();
+    const [isLoading,] = useState(false);
+    const [error] = useState<string | null>(null);
 
     // validate all fields in the form
     // email must be valid, password must be strong
-    const validateEmail = (email: string) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
+    // const validateEmail = (email: string) => {
+    //     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    //     return emailRegex.test(email);
+    // };
 
-    const validatePassword = (password: string) => {
-        if (password.length < 8) {
-            setError("Password must be at least 8 characters long");
-            return false;
-        }
-        else if (!/[A-Z]/.test(password)) {
-            setError("Password must contain at least one uppercase letter");
-            return false;
-        }
-        else if (!/[a-z]/.test(password)) {
-            setError("Password must contain at least one lowercase letter");
-            return false;
-        }
-        else if (!/[0-9]/.test(password)) {
-            setError("Password must contain at least one digit");
-            return false;
-        }
-        else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-            setError("Password must contain at least one special character");
-            return false;
-        }
+    // const validatePassword = (password: string) => {
+    //     if (password.length < 8) {
+    //         setError("Password must be at least 8 characters long");
+    //         return false;
+    //     }
+    //     else if (!/[A-Z]/.test(password)) {
+    //         setError("Password must contain at least one uppercase letter");
+    //         return false;
+    //     }
+    //     else if (!/[a-z]/.test(password)) {
+    //         setError("Password must contain at least one lowercase letter");
+    //         return false;
+    //     }
+    //     else if (!/[0-9]/.test(password)) {
+    //         setError("Password must contain at least one digit");
+    //         return false;
+    //     }
+    //     else if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+    //         setError("Password must contain at least one special character");
+    //         return false;
+    //     }
 
-        return true;
+    //     return true;
 
-    }
+    // }
 
-    const validateForm = () => {
-        if (!state.username) {
-            setError("Username is required");
-            return false;
-        }
+    // const validateForm = () => {
+    //     if (!state.username) {
+    //         setError("Username is required");
+    //         return false;
+    //     }
 
-        if (!state.email) {
-            setError("Email is required");
-            return false;
-        }
+    //     if (!state.email) {
+    //         setError("Email is required");
+    //         return false;
+    //     }
 
-        if (!validateEmail(state.email)) {
-            setError("Please enter a valid email address");
-            return false;
-        }
+    //     if (!validateEmail(state.email)) {
+    //         setError("Please enter a valid email address");
+    //         return false;
+    //     }
 
-        if (!validatePassword(state.password)) {
-            return false;
-        }
+    //     if (!validatePassword(state.password)) {
+    //         return false;
+    //     }
 
-        if (state.password !== state.confirmPassword) {
-            setError("Passwords do not match");
-            return false;
-        }
+    //     if (state.password !== state.confirmPassword) {
+    //         setError("Passwords do not match");
+    //         return false;
+    //     }
 
 
-        if (!state.username || !state.email || !state.password || !state.confirmPassword) {
-            setError("All fields are required");
-            return false;
-        }
+    //     if (!state.username || !state.email || !state.password || !state.confirmPassword) {
+    //         setError("All fields are required");
+    //         return false;
+    //     }
 
-        return true;
-    };
+    //     return true;
+    // };
 
     // const handleSubmit = async (e: React.FormEvent) => {
     //     e.preventDefault();

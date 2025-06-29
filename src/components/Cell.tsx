@@ -1,6 +1,5 @@
 import { Box } from '@chakra-ui/react';
-import React, { useState, useRef } from 'react'
-import type { CellType } from '@/types';
+import React, { useRef } from 'react'
 
 interface CellProps {
     isMine: boolean;
@@ -43,48 +42,49 @@ const Cell = ({ isMine, isRevealed, isFlagged, adjacentMines, onReveal, onFlag, 
     }
 
     return (
-        <>            <Box
-            ref={cellRef}
-            as="button"
-            cursor={'default'}
-            onClick={onReveal}
-            onKeyDown={handleKeyDown}
-            onMouseEnter={handleMouseEnter}
-            tabIndex={0} // Make focusable for keyboard events
-            onContextMenu={(e: { preventDefault: () => void; }) => {
-                e.preventDefault();
-                onFlag(); // Call flag function
-            }}
-            onMouseDown={handleMouseDown}
-            w="40px"
-            h="40px"
-            {...(isRevealed ? { bg: 'gray.400', border: '1px solid rgb(141, 140, 155)' } : { bg: 'gray.200', border: '1px solid rgb(170, 168, 190)' })}
-            _hover={!isRevealed ? { bg: 'gray.300' } : {}}
-            _focus={{
-                outline: '2px solid',
-                outlineColor: 'blue.200',
-                outlineOffset: '-2px'
-            }}
-        >
-            {isRevealed ? (
-                isMine ? (
-                    '💣' // Display mine
-                ) : (
-                    adjacentMines > 0 ? (
-                        <span className={`mine-count-${adjacentMines}`}>{adjacentMines}</span> // Display number of adjacent mines
+        <>
+            <Box
+                ref={cellRef}
+                as="button"
+                cursor={'default'}
+                onClick={onReveal}
+                onKeyDown={handleKeyDown}
+                onMouseEnter={handleMouseEnter}
+                tabIndex={0} // Make focusable for keyboard events
+                onContextMenu={(e: { preventDefault: () => void; }) => {
+                    e.preventDefault();
+                    onFlag(); // Call flag function
+                }}
+                onMouseDown={handleMouseDown}
+                w="40px"
+                h="40px"
+                {...(isRevealed ? { bg: 'gray.400', border: '1px solid rgb(141, 140, 155)' } : { bg: 'gray.200', border: '1px solid rgb(170, 168, 190)' })}
+                _hover={!isRevealed ? { bg: 'gray.300' } : {}}
+                _focus={{
+                    outline: '2px solid',
+                    outlineColor: 'blue.200',
+                    outlineOffset: '-2px'
+                }}
+            >
+                {isRevealed ? (
+                    isMine ? (
+                        '💣' // Display mine
                     ) : (
-                        ' ' // Empty cell
+                        adjacentMines > 0 ? (
+                            <span className={`mine-count-${adjacentMines}`}>{adjacentMines}</span> // Display number of adjacent mines
+                        ) : (
+                            ' ' // Empty cell
+                        )
                     )
-                )
-            ) : (
-                isFlagged ? (
-                    '🚩' // Display flag
                 ) : (
-                    ' ' // Hidden cell
-                )
-            )}
+                    isFlagged ? (
+                        '🚩' // Display flag
+                    ) : (
+                        ' ' // Hidden cell
+                    )
+                )}
 
-        </Box>
+            </Box>
         </>
     )
 }

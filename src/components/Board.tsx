@@ -1,15 +1,12 @@
 import Cell from '@/components/Cell';
-import ColorModeToggle from '@/components/ColorModeToggle';
 import { CellType, CellValue } from '@/types';
 import {
-    Alert,
     AlertDialog,
     AlertDialogBody,
     AlertDialogContent,
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogOverlay,
-    AlertIcon,
     Box,
     Button,
     Flex,
@@ -22,7 +19,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useGameTimer } from '@/hooks/useGameTimer';
 
 const Board = () => {
-    const { time, formattedTime, startTimer, stopTimer, resetTimer, isRunning } = useGameTimer();
+    const { time, formattedTime, startTimer, stopTimer, resetTimer } = useGameTimer();
     const [grid, setGrid] = useState<CellType[][]>([]);
     const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
     const [gameSettings, setGameSettings] = useState({
@@ -118,7 +115,7 @@ const Board = () => {
         if (isFirstClick) {
             startTimer();
             setIsFirstClick(false);
-            let newGrid = grid.map(r => r.map(c => ({ ...c })));
+            const newGrid = grid.map(r => r.map(c => ({ ...c })));
 
             // Place mines, avoiding the first click area
             let placedMines = 0;
@@ -163,7 +160,7 @@ const Board = () => {
     };
 
     const revealCell = (grid: CellType[][], row: number, col: number): CellType[][] => {
-        let newGrid = grid.map(r => r.map(c => ({ ...c })));
+        const newGrid = grid.map(r => r.map(c => ({ ...c })));
         const cell = newGrid[row][col];
 
         if (cell.isRevealed || cell.isFlagged) {

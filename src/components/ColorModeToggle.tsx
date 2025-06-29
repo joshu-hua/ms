@@ -2,7 +2,7 @@ import { Button, useColorMode, useColorModeValue } from '@chakra-ui/react'
 import React from 'react'
 
 const ColorModeToggle = () => {
-    const { colorMode, toggleColorMode } = useColorMode()
+    const { toggleColorMode } = useColorMode()
 
     // Use different icons/text based on current mode
     const buttonText = useColorModeValue('🌙', '☀️')
