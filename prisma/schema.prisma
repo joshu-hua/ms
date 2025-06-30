@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relationship: one user can have many scores
+  scores    Score[]
+}
+
+model Score {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  time       Int      // Time in seconds
+  difficulty String   // "easy", "medium", "hard"
+  mines      Int      // Number of mines in the game
+  completed  Boolean  // Whether the game was won or lost
+  createdAt  DateTime @default(now())
+  
+  // Relationship: each score belongs to one user
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

@@ -34,3 +34,49 @@ export interface GameSettings {
 	cols: number;
 	mines: number;
 }
+
+// Database types for user authentication and scores
+export interface User {
+	id: number;
+	username: string;
+	email: string;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+export interface CreateUserRequest {
+	username: string;
+	email: string;
+	password: string;
+}
+
+export interface LoginRequest {
+	email: string;
+	password: string;
+}
+
+export interface Score {
+	id: number;
+	userId: number;
+	time: number;
+	difficulty: string;
+	mines: number;
+	completed: boolean;
+	createdAt: Date;
+	user?: User; // Optional user data when fetching scores
+}
+
+export interface CreateScoreRequest {
+	time: number;
+	difficulty: string;
+	gridSize: string;
+	mines: number;
+	completed: boolean;
+}
+
+export interface AuthResponse {
+	success: boolean;
+	message: string;
+	user?: User;
+	token?: string;
+}
