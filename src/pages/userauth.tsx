@@ -1,4 +1,4 @@
-import { useState, useReducer } from "react";
+import { useState, useReducer, useEffect } from "react";
 import { useRouter } from "next/router";
 import { registerUser } from "@/lib/api";
 
@@ -168,36 +168,6 @@ const UserAuth = () => {
     };
 
 
-    if (isLoading) {
-        return (
-            <Box bgSize="cover" h="100vh">
-                <Flex align="center" justify="center" height="100%">
-                    <Box
-                        p="6"
-                        py={10}
-                        borderWidth="1px"
-                        bg="white"
-                        opacity={0.95}
-                        minW={"350px"}
-                        maxW={"17.5%"}
-                    >
-                        <Center flexDirection="column" h="400px">
-                            <Spinner
-                                thickness="4px"
-                                speed="0.65s"
-                                emptyColor="gray.200"
-                                color="green.500"
-                                size="xl"
-                            />
-                            <Text mt={4} fontSize="lg" fontWeight="medium">
-                                Creating your account...
-                            </Text>
-                        </Center>
-                    </Box>
-                </Flex>
-            </Box>
-        );
-    }
     return (
         <>
             <Header />
@@ -214,10 +184,10 @@ const UserAuth = () => {
                     >
                         <Tabs variant={"soft-rounded"}>
                             <TabList>
-                                <Tab>
+                                <Tab color={"text-secondary"}>
                                     Login
                                 </Tab>
-                                <Tab>
+                                <Tab color={"text-secondary"}>
                                     Register
                                 </Tab>
                             </TabList>
