@@ -116,6 +116,26 @@ const components = {
 			variant: "outline",
 		},
 	},
+	Checkbox: {
+		variants: {
+			primary: {
+				control: {
+					bg: "input-bg",
+					borderColor: "border-color",
+					_checked: {
+						bg: "blue.500",
+						borderColor: "blue.500",
+					},
+				},
+				label: {
+					color: "text-primary",
+				},
+			},
+		},
+		defaultProps: {
+			variant: "primary",
+		},
+	},
 };
 
 // 4. Create and export the theme

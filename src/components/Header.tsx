@@ -13,8 +13,8 @@ const Header = () => {
                     </Heading>
                 </Link>
                 <Flex gap={4} align="center">
-                    <Link href="login" color={"text-link"} _hover={{ textDecoration: 'underline' }}>
-                        Login/Signup
+                    <Link href="userauth" color={"text-link"} _hover={{ textDecoration: 'underline' }}>
+                        Login/Register
                     </Link>
                     <ColorModeToggle />
                 </Flex>
