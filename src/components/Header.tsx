@@ -7,7 +7,8 @@ const Header = () => {
     return (
         <Box bg="surface-bg" borderBottom="1px" borderColor="border-color" py={4} px={6}>
             <Flex justify="space-between" align="center" maxW="1200px" mx="auto">
-                <Link href="/">
+                <Link href="/" _hover={{ textDecoration: 'none', transform: 'scale(1.05)' }} transition="all 0.2s"
+                >
                     <Heading size="lg" color="text-primary" fontWeight="bold">
                         💣
                     </Heading>
