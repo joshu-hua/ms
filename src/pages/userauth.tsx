@@ -1,6 +1,6 @@
 import { useState, useReducer, useEffect } from "react";
 import { useRouter } from "next/router";
-import { registerUser } from "@/lib/api";
+import { loginUser, registerUser } from "@/lib/api";
 
 import {
     Box,
@@ -19,7 +19,36 @@ import {
     TabPanels
 } from "@chakra-ui/react";
 import Header from "@/components/Header";
-import { CreateUserRequest } from "@/types";
+import { CreateUserRequest, LoginRequest } from "@/types";
+
+
+type LoginState = {
+    email: string;
+    password: string;
+}
+
+
+type LoginAction =
+    | { type: "CHANGE_EMAIL_LOGIN"; payload: string }
+    | { type: "CHANGE_PASSWORD_LOGIN"; payload: string };
+
+
+const initialLoginState = {
+    email: "",
+    password: "",
+};
+
+
+function loginReducer(state: LoginState, action: LoginAction) {
+    switch (action.type) {
+        case "CHANGE_EMAIL_LOGIN":
+            return { ...state, email: action.payload };
+        case "CHANGE_PASSWORD_LOGIN":
+            return { ...state, password: action.payload };
+        default:
+            return state;
+    }
+}
 
 type SignUpState = {
     username: string;
@@ -27,7 +56,6 @@ type SignUpState = {
     password: string;
     confirmPassword: string;
 }
-
 // actions for the reducer (modification of states)
 type SignUpAction =
     | { type: "CHANGE_USER_NAME"; payload: string }
@@ -62,8 +90,10 @@ function signUpReducer(state: SignUpState, action: SignUpAction): SignUpState {
 const UserAuth = () => {
     const router = useRouter();
     const [state, dispatch] = useReducer(signUpReducer, initialState);
+    const [loginState, loginDispatch] = useReducer(loginReducer, initialLoginState);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null); // for signup
+    const [loginError, setLoginError] = useState<string | null>(null); // for login
 
     // validate all fields in the form
     // email must be valid, password must be strong
@@ -132,7 +162,7 @@ const UserAuth = () => {
         return true;
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!validateForm()) {
@@ -167,6 +197,52 @@ const UserAuth = () => {
 
     };
 
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!loginState.email || !loginState.password) {
+            setLoginError("Email and password are required");
+            return;
+        }
+
+        if (!validateEmail(loginState.email)) {
+            setLoginError("Please enter a valid email address");
+            return;
+        }
+
+        setIsLoading(true); // set loading while we try to login
+        setLoginError(null);
+
+        try {
+            const credentials: LoginRequest = {
+                email: loginState.email,
+                password: loginState.password,
+            };
+
+            const result = await loginUser(credentials);
+
+            if (result.success && result.token) {
+                console.log("Login successful");
+
+                if (typeof window !== "undefined") {
+                    localStorage.setItem("authToken", result.token);
+                }
+
+                router.push("/");
+            } else {
+                // show error message generated in backend
+                setLoginError(result.message || "Login failed. Please try again.");
+            }
+        } catch (error) {
+            console.error("Unexpected error during login:", error);
+            setLoginError("An unexpected error occurred. Please try again.");
+        }
+        finally {
+            setIsLoading(false);
+        }
+
+    };
+
 
     return (
         <>
@@ -195,7 +271,7 @@ const UserAuth = () => {
                             <TabPanels>
                                 <TabPanel pt={12} pb={0}>
 
-                                    <form>
+                                    <form onSubmit={handleLogin}>
                                         <FormControl mb="10px">
                                             <Input
                                                 id="email-login"
@@ -203,6 +279,8 @@ const UserAuth = () => {
                                                 name="email-login"
                                                 type="text"
                                                 placeholder="Email Address *"
+                                                value={loginState.email}
+                                                onChange={(e) => loginDispatch({ type: "CHANGE_EMAIL_LOGIN", payload: e.target.value })}
                                             />
                                         </FormControl>
                                         <FormControl mb="10px">
@@ -212,31 +290,34 @@ const UserAuth = () => {
                                                 name="password-login"
                                                 type="password"
                                                 placeholder="Password *"
+                                                value={loginState.password}
+                                                onChange={(e) => loginDispatch({ type: "CHANGE_PASSWORD_LOGIN", payload: e.target.value })}
                                             />
                                         </FormControl>
-                                        <Flex
-                                            gap={"10px"}
-                                            maxW={"100%"}
-                                            mb={"10px"}
-                                            justify="left"
-                                            alignItems={"center"}
-                                        >
-                                        </Flex>
+                                        {loginError && (
+                                            <Text color="red.500" mb="3" textAlign="center">
+                                                {loginError}
+                                            </Text>
+                                        )}
                                         <Button
+                                            type="submit"
                                             width="50%"
+                                            name="Login"
                                             w={"100%"}
                                             variant={"outline"}
                                             colorScheme="blue"
-                                            mt={4}
+                                            {...loginError ? {} : { mt: 4 }}
+                                            isLoading={isLoading}
+                                            loadingText="Logging in..."
                                         >
-                                            Submit
+                                            Login
                                         </Button>
                                     </form>
                                 </TabPanel>
                                 <TabPanel pt={12} pb={0}>
 
                                     <form
-                                        onSubmit={handleSubmit}
+                                        onSubmit={handleRegister}
                                     >
                                         <FormControl mb="10px">
                                             <Input
@@ -313,7 +394,7 @@ const UserAuth = () => {
                                             variant={"outline"}
                                             colorScheme="blue"
                                         >
-                                            Submit
+                                            Register
                                         </Button>
                                     </form>
                                 </TabPanel>

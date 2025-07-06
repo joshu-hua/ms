@@ -8,7 +8,7 @@ const Leaderboard = () => {
                 Leaderboard
             </Heading>
             <Box>
-                <Tabs variant="enclosed">
+                <Tabs variant="soft-rounded">
                     <TabList>
                         <Tab _selected={{ bg: "surface-bg", color: "text-primary" }}>Easy</Tab>
                         <Tab _selected={{ bg: "surface-bg", color: "text-primary" }}>Medium</Tab>
