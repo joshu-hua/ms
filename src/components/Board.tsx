@@ -35,8 +35,18 @@ const Board = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const cancelRef = useRef<HTMLButtonElement>(null);
 
+    // Load difficulty from localStorage on component mount
     useEffect(() => {
-        // Define settings locally to avoid using stale state from gameSettings
+        if (typeof window !== "undefined") {
+            const savedDifficulty = localStorage.getItem('minesweeper-difficulty');
+            if (savedDifficulty && ['easy', 'medium', 'hard'].includes(savedDifficulty)) {
+                setDifficulty(savedDifficulty as 'easy' | 'medium' | 'hard');
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        // Set game settings based on difficulty
         let currentSettings;
         if (difficulty === 'easy') {
             currentSettings = { rows: 10, cols: 10, mines: 10 };
@@ -45,6 +55,7 @@ const Board = () => {
         } else { // 'hard'
             currentSettings = { rows: 16, cols: 30, mines: 99 };
         }
+
         setGameSettings(currentSettings);
         resetGame(currentSettings.rows, currentSettings.cols, currentSettings.mines);
     }, [difficulty]);
@@ -73,6 +84,11 @@ const Board = () => {
 
     const handleDifficultyChange = (newDifficulty: 'easy' | 'medium' | 'hard') => {
         setDifficulty(newDifficulty);
+
+        // Save difficulty to localStorage
+        if (typeof window !== "undefined") {
+            localStorage.setItem('minesweeper-difficulty', newDifficulty);
+        }
     }
 
     const resetGame = (rows: number, cols: number, mines: number) => {
