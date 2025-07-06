@@ -367,6 +367,7 @@ const Board = () => {
                                 onReveal={() => handleReveal(rowIndex, colIndex)}
                                 onFlag={() => handleFlag(rowIndex, colIndex)}
                                 onChord={() => handleChord(rowIndex, colIndex)}
+                                onR={() => resetGame(gameSettings.rows, gameSettings.cols, gameSettings.mines)}
                             />
                         ))
                     )}

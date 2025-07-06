@@ -9,9 +9,10 @@ interface CellProps {
     onReveal: () => void;
     onFlag: () => void;
     onChord: () => void;
+    onR: () => void; // Reset function
 }
 
-const Cell = ({ isMine, isRevealed, isFlagged, adjacentMines, onReveal, onFlag, onChord }: CellProps) => {
+const Cell = ({ isMine, isRevealed, isFlagged, adjacentMines, onReveal, onFlag, onChord, onR }: CellProps) => {
     const cellRef = useRef<HTMLButtonElement>(null);
 
     const handleMouseDown = (e: React.MouseEvent) => {
@@ -31,6 +32,9 @@ const Cell = ({ isMine, isRevealed, isFlagged, adjacentMines, onReveal, onFlag, 
                 // If cell is unrevealed, flag/unflag
                 onFlag();
             }
+        } else if (e.key === 'r' || e.code === 'KeyR') {
+            e.preventDefault();
+            onR(); // Call reset function
         }
     }
 
