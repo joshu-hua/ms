@@ -134,33 +134,45 @@ export default async function handler(
 			});
 		}
 
-		const newScore = await prisma.score.create({
-			data: {
-				time,
-				difficulty,
-				gridSize,
-				mines,
-				completed,
-				user: {
-					connect: { id: userId }, // You'll need to get the actual user ID
-				},
-			},
-			select: {
-				id: true,
-				userId: true,
-				time: true,
-				difficulty: true,
-				gridSize: true,
-				mines: true,
-				completed: true,
-				createdAt: true,
-			},
+		const existingBest = await prisma.score.findFirst({
+			where: { userId, difficulty },
+			orderBy: { time: "asc" },
 		});
 
-		return res.status(201).json({
+		if (!existingBest || time < existingBest.time) {
+			const newScore = await prisma.score.create({
+				data: {
+					time,
+					difficulty,
+					gridSize,
+					mines,
+					completed,
+					user: {
+						connect: { id: userId },
+					},
+				},
+				select: {
+					id: true,
+					userId: true,
+					time: true,
+					difficulty: true,
+					gridSize: true,
+					mines: true,
+					completed: true,
+					createdAt: true,
+				},
+			});
+
+			return res.status(201).json({
+				success: true,
+				message: "Score created successfully.",
+				score: newScore,
+			});
+		}
+
+		return res.status(200).json({
 			success: true,
-			message: "Score created successfully.",
-			score: newScore,
+			message: `Score not saved. Your personal best for ${difficulty} is ${existingBest.time} seconds.`,
 		});
 	} catch (error) {
 		console.error("Error creating score:", error);
