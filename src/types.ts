@@ -60,6 +60,7 @@ export interface Score {
 	userId: number;
 	time: number;
 	difficulty: string;
+	gridSize: string;
 	mines: number;
 	completed: boolean;
 	createdAt: Date;
@@ -72,6 +73,12 @@ export interface CreateScoreRequest {
 	gridSize: string;
 	mines: number;
 	completed: boolean;
+}
+
+export interface CreateScoreResponse {
+	success: boolean;
+	message: string;
+	score?: Score; // The created score with ID, timestamps, etc.
 }
 
 export interface AuthResponse {

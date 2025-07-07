@@ -10,7 +10,6 @@ const index = () => {
       <Header />
       <Box display="flex" flexDirection="row" alignItems="center" justifyContent="space-evenly" minHeight="100vh"
       >
-        <Box minW="15%"></Box>
         <Board />
         <Leaderboard />
       </Box>

@@ -35,7 +35,7 @@ export default async function handler(
 		if (!user) {
 			return res.status(401).json({
 				success: false,
-				message: "Invalid email or password.",
+				message: "Invalid email or password",
 			});
 		}
 
@@ -45,7 +45,7 @@ export default async function handler(
 		if (!isPasswordValid) {
 			return res.status(401).json({
 				success: false,
-				message: "Invalid email or password.",
+				message: "Invalid email or password",
 			});
 		}
 
@@ -56,7 +56,7 @@ export default async function handler(
 				email: user.email,
 				username: user.username,
 			},
-			process.env.JWT_SECRET || "your-secret-key", // We'll set this up next
+			process.env.JWT_SECRET || "your-secret-key",
 			{ expiresIn: "7d" } // Token expires in 7 days
 		);
 

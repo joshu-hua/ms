@@ -50,6 +50,34 @@ export async function loginUser(
 	}
 }
 
+export async function createScore(
+	time: number,
+	difficulty: string,
+	gridSize: string,
+	mines: number,
+	completed: boolean
+): Promise<{ success: boolean; message: string }> {
+	try {
+		const response = await fetch(`${API_BASE}/score`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${getAuthToken()}`,
+			},
+			body: JSON.stringify({ time, difficulty, gridSize, mines, completed }),
+		});
+
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error creating score:", error);
+		return {
+			success: false,
+			message: "Network error. Please try again.",
+		};
+	}
+}
+
 // Store JWT token in localStorage
 export function storeAuthToken(token: string): void {
 	if (typeof window !== "undefined") {

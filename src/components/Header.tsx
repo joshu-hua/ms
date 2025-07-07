@@ -1,6 +1,7 @@
-import { Box, Flex, Heading, Link } from '@chakra-ui/react'
+import { Box, Button, Flex, Heading, Link } from '@chakra-ui/react'
 import React from 'react'
 import ColorModeToggle from './ColorModeToggle'
+import { isLoggedIn, removeAuthToken } from '@/lib/api'
 
 
 const Header = () => {
@@ -14,9 +15,23 @@ const Header = () => {
                     </Heading>
                 </Link>
                 <Flex gap={4} align="center">
-                    <Link href="userauth" color={"text-link"} _hover={{ textDecoration: 'underline' }}>
-                        Login/Register
-                    </Link>
+
+
+                    {typeof window !== 'undefined' && isLoggedIn() ? (
+                        <Button
+                            colorScheme='red'
+                            variant='ghost'
+                            onClick={() => {
+                                removeAuthToken()
+                                window.location.reload()
+                            }}
+                        >
+                            Logout
+                        </Button>
+                    ) : (
+                        <Link>Login/Register</Link>
+                    )}
+
                     <ColorModeToggle />
                 </Flex>
             </Flex>
