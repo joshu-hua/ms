@@ -62,7 +62,6 @@ export interface Score {
 	difficulty: string;
 	gridSize: string;
 	mines: number;
-	completed: boolean;
 	createdAt: Date;
 	user?: User; // Optional user data when fetching scores
 }
@@ -72,13 +71,36 @@ export interface CreateScoreRequest {
 	difficulty: string;
 	gridSize: string;
 	mines: number;
-	completed: boolean;
 }
 
 export interface CreateScoreResponse {
 	success: boolean;
 	message: string;
 	score?: Score; // The created score with ID, timestamps, etc.
+}
+
+export interface CreateStatsRequest {
+	userId: number;
+	bestTime: number;
+	totalGames: number;
+	difficulty: string;
+	gridSize: string;
+	mines: number;
+}
+
+export interface UserStats {
+	id: number;
+	userId: number;
+	difficulty: string;
+	totalGames: number;
+	totalWins: number;
+	lastPlayed: Date;
+}
+
+export interface UserStatsResponse {
+	success: boolean;
+	message: string;
+	stats?: UserStats; // The user stats object
 }
 
 export interface AuthResponse {

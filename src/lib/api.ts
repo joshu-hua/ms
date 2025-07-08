@@ -1,4 +1,9 @@
-import { CreateUserRequest, LoginRequest, AuthResponse } from "@/types";
+import {
+	CreateUserRequest,
+	LoginRequest,
+	AuthResponse,
+	UserStats,
+} from "@/types";
 
 const API_BASE = "/api";
 
@@ -54,23 +59,47 @@ export async function createScore(
 	time: number,
 	difficulty: string,
 	gridSize: string,
-	mines: number,
-	completed: boolean
+	mines: number
 ): Promise<{ success: boolean; message: string }> {
 	try {
-		const response = await fetch(`${API_BASE}/score`, {
+		const response = await fetch(`${API_BASE}/score/createScore`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${getAuthToken()}`,
 			},
-			body: JSON.stringify({ time, difficulty, gridSize, mines, completed }),
+			body: JSON.stringify({ time, difficulty, gridSize, mines }),
 		});
 
 		const data = await response.json();
 		return data;
 	} catch (error) {
 		console.error("Error creating score:", error);
+		return {
+			success: false,
+			message: "Network error. Please try again.",
+		};
+	}
+}
+
+export async function updateUserStats(
+	difficulty: string,
+	completed: boolean
+): Promise<{ success: boolean; message: string; stats?: UserStats }> {
+	try {
+		const response = await fetch(`${API_BASE}/score/updateUserStats`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Authorization: `Bearer ${getAuthToken()}`,
+			},
+			body: JSON.stringify({ difficulty, completed }),
+		});
+
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error updating user stats:", error);
 		return {
 			success: false,
 			message: "Network error. Please try again.",

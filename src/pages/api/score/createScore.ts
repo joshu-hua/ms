@@ -56,20 +56,14 @@ export default async function handler(
 			});
 		}
 
-		const {
-			time,
-			difficulty,
-			gridSize,
-			mines,
-			completed,
-		}: CreateScoreRequest = req.body;
+		const { time, difficulty, gridSize, mines }: CreateScoreRequest =
+			req.body;
 
 		if (
 			typeof time !== "number" ||
 			typeof difficulty !== "string" ||
 			typeof gridSize !== "string" ||
-			typeof mines !== "number" ||
-			typeof completed !== "boolean"
+			typeof mines !== "number"
 		) {
 			return res.status(400).json({
 				success: false,
@@ -146,7 +140,6 @@ export default async function handler(
 					difficulty,
 					gridSize,
 					mines,
-					completed,
 					user: {
 						connect: { id: userId },
 					},
@@ -158,7 +151,6 @@ export default async function handler(
 					difficulty: true,
 					gridSize: true,
 					mines: true,
-					completed: true,
 					createdAt: true,
 				},
 			});

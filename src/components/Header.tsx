@@ -35,7 +35,7 @@ const Header = () => {
                             Logout
                         </Button>
                     ) : isClient ? (
-                        <Link>Login/Register</Link>
+                        <Link href='/userauth'>Login/Register</Link>
                     ) : null}
 
                     <ColorModeToggle />
