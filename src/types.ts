@@ -79,13 +79,9 @@ export interface CreateScoreResponse {
 	score?: Score; // The created score with ID, timestamps, etc.
 }
 
-export interface CreateStatsRequest {
-	userId: number;
-	bestTime: number;
-	totalGames: number;
+export interface UpdateStatsRequest {
 	difficulty: string;
-	gridSize: string;
-	mines: number;
+	completed: boolean;
 }
 
 export interface UserStats {

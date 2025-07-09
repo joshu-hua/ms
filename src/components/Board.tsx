@@ -1,5 +1,5 @@
 import Cell from '@/components/Cell';
-import { CellType, CellValue, CreateScoreRequest, CreateScoreResponse } from '@/types';
+import { CellType, CellValue, CreateScoreRequest, UpdateStatsRequest } from '@/types';
 import {
     AlertDialog,
     AlertDialogBody,
@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react';
 import React, { useState, useEffect, useRef } from 'react'
 import { useGameTimer } from '@/hooks/useGameTimer';
-import { createScore } from '@/lib/api';
+import { createScore, updateUserStats } from '@/lib/api';
 
 const Board = () => {
     const { time, formattedTime, startTimer, stopTimer, resetTimer } = useGameTimer();
@@ -36,35 +36,62 @@ const Board = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const cancelRef = useRef<HTMLButtonElement>(null);
 
-    useEffect(() => {
-        const saveScore = async () => {
+    useEffect(() => { // save score and stats when game ends
+        if (gameState !== 'playing') {
             if (gameState === 'won') {
+                const saveScore = async () => {
+                    try {
+                        const scoreData: CreateScoreRequest = {
+                            time,
+                            difficulty,
+                            gridSize: `${gameSettings.rows}x${gameSettings.cols}`,
+                            mines: gameSettings.mines
+                        };
+
+                        const result = await createScore(scoreData);
+
+                        if (result.success) {
+                            console.log("Score saved successfully:", result);
+                        } else {
+                            console.error("Failed to save score:", result.message);
+                        }
+
+                    } catch (error) {
+                        console.error("Error saving score:", error);
+                    }
+
+                };
+
+                saveScore();
+            }
+
+            const updateStats = async () => {
                 try {
-                    const gridSize = `${gameSettings.rows}x${gameSettings.cols}`;
-                    console.log(time + " " + difficulty + " " + gridSize + " " + gameSettings.mines);
-                    const scoreData: CreateScoreRequest = {
-                        time,
+                    const stats: UpdateStatsRequest = {
                         difficulty,
-                        gridSize: `${gameSettings.rows}x${gameSettings.cols}`,
-                        mines: gameSettings.mines
+                        completed: gameState === 'won'
                     };
 
-                    const result = await createScore(scoreData);
+                    const result = await updateUserStats(stats);
 
                     if (result.success) {
-                        console.log("Score saved successfully:", result);
+                        console.log("User stats updated successfully:", result);
                     } else {
-                        console.error("Failed to save score:", result.message);
+                        console.error("Failed to update user stats:", result.message);
                     }
 
                 } catch (error) {
-                    console.error("Error saving score:", error);
+                    console.error("Error updating user stats:", error);
                 }
 
-            }
-        };
+            };
+            updateStats();
 
-        saveScore();
+        }
+
+
+
+
     }, [gameState]);
 
     // Load difficulty from localStorage on component mount

@@ -5,6 +5,7 @@ import {
 	UserStats,
 	CreateScoreRequest,
 	CreateScoreResponse,
+	UpdateStatsRequest,
 } from "@/types";
 
 const API_BASE = "/api";
@@ -82,8 +83,7 @@ export async function createScore(
 }
 
 export async function updateUserStats(
-	difficulty: string,
-	completed: boolean
+	stats: UpdateStatsRequest
 ): Promise<{ success: boolean; message: string; stats?: UserStats }> {
 	try {
 		const response = await fetch(`${API_BASE}/score/updateUserStats`, {
@@ -92,7 +92,7 @@ export async function updateUserStats(
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${getAuthToken()}`,
 			},
-			body: JSON.stringify({ difficulty, completed }),
+			body: JSON.stringify(stats),
 		});
 
 		const data = await response.json();
