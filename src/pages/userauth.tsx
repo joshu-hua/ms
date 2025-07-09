@@ -180,10 +180,26 @@ const UserAuth = () => {
 
             if (result.success) {
                 console.log("User created successfully");
-                router.push("/");
-            } else {
-                // show error message generated in backend
-                setError(result.message);
+
+                const credentials: LoginRequest = { // login after registration
+                    email: state.email,
+                    password: state.password,
+                };
+
+                const result = await loginUser(credentials);
+
+                if (result.success && result.token) {
+                    console.log("Login successful");
+
+                    if (typeof window !== "undefined") {
+                        localStorage.setItem("authToken", result.token);
+                    }
+
+                    router.push("/");
+                } else {
+                    // show error message generated in backend
+                    setError(result.message);
+                }
             }
 
         } catch (error) {
