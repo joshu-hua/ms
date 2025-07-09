@@ -1,5 +1,5 @@
 import Cell from '@/components/Cell';
-import { CellType, CellValue } from '@/types';
+import { CellType, CellValue, CreateScoreRequest, CreateScoreResponse } from '@/types';
 import {
     AlertDialog,
     AlertDialogBody,
@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react';
 import React, { useState, useEffect, useRef } from 'react'
 import { useGameTimer } from '@/hooks/useGameTimer';
+import { createScore } from '@/lib/api';
 
 const Board = () => {
     const { time, formattedTime, startTimer, stopTimer, resetTimer } = useGameTimer();
@@ -34,6 +35,37 @@ const Board = () => {
     // For the AlertDialog
     const { isOpen, onOpen, onClose } = useDisclosure();
     const cancelRef = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        const saveScore = async () => {
+            if (gameState === 'won') {
+                try {
+                    const gridSize = `${gameSettings.rows}x${gameSettings.cols}`;
+                    console.log(time + " " + difficulty + " " + gridSize + " " + gameSettings.mines);
+                    const scoreData: CreateScoreRequest = {
+                        time,
+                        difficulty,
+                        gridSize: `${gameSettings.rows}x${gameSettings.cols}`,
+                        mines: gameSettings.mines
+                    };
+
+                    const result = await createScore(scoreData);
+
+                    if (result.success) {
+                        console.log("Score saved successfully:", result);
+                    } else {
+                        console.error("Failed to save score:", result.message);
+                    }
+
+                } catch (error) {
+                    console.error("Error saving score:", error);
+                }
+
+            }
+        };
+
+        saveScore();
+    }, [gameState]);
 
     // Load difficulty from localStorage on component mount
     useEffect(() => {
@@ -126,6 +158,7 @@ const Board = () => {
         // Don't allow reveals if game is over
         if (gameState !== 'playing') return;
 
+        const startTime = performance.now();
         let gridToProcess = grid;
 
         if (isFirstClick) {
@@ -173,10 +206,16 @@ const Board = () => {
         setGameState(newGameState);
 
         setGrid(finalGrid);
+
+        const endTime = performance.now();
+        if (endTime - startTime > 50) {
+            console.log(`handleReveal took ${endTime - startTime}ms`);
+        }
     };
 
     const revealCell = (grid: CellType[][], row: number, col: number): CellType[][] => {
-        const newGrid = grid.map(r => r.map(c => ({ ...c })));
+        // Create a shallow copy of the grid array, but reuse cell objects that don't change
+        const newGrid = grid.map(r => [...r]);
         const cell = newGrid[row][col];
 
         if (cell.isRevealed || cell.isFlagged) {
@@ -185,12 +224,22 @@ const Board = () => {
 
         // Use a queue for an iterative flood fill
         const queue: { row: number, col: number }[] = [{ row, col }];
-        newGrid[row][col].isRevealed = true;
+        const cellsToUpdate = new Set<string>(); // Track which cells need updating
+
+        // Mark the initial cell for update
+        cellsToUpdate.add(`${row}-${col}`);
+        newGrid[row][col] = { ...cell, isRevealed: true };
 
         // If the first revealed cell is a mine, end the game
         if (cell.isMine) {
-            newGrid.forEach(r => r.forEach(c => {
-                if (c.isMine) c.isRevealed = true;
+            newGrid.forEach((r, rowIndex) => r.forEach((c, colIndex) => {
+                if (c.isMine) {
+                    const key = `${rowIndex}-${colIndex}`;
+                    if (!cellsToUpdate.has(key)) {
+                        cellsToUpdate.add(key);
+                        newGrid[rowIndex][colIndex] = { ...c, isRevealed: true };
+                    }
+                }
             }));
             return newGrid;
         }
@@ -209,8 +258,12 @@ const Board = () => {
 
                         if (nr >= 0 && nr < gameSettings.rows && nc >= 0 && nc < gameSettings.cols) {
                             const neighbor = newGrid[nr][nc];
-                            if (!neighbor.isRevealed && !neighbor.isFlagged) {
-                                neighbor.isRevealed = true;
+                            const key = `${nr}-${nc}`;
+
+                            if (!neighbor.isRevealed && !neighbor.isFlagged && !cellsToUpdate.has(key)) {
+                                cellsToUpdate.add(key);
+                                newGrid[nr][nc] = { ...neighbor, isRevealed: true };
+
                                 // If the neighbor is also empty, add it to the queue to be processed
                                 if (neighbor.value === CellValue.Empty) {
                                     queue.push({ row: nr, col: nc });
@@ -229,22 +282,20 @@ const Board = () => {
         // Don't allow flagging if game is over
         if (gameState !== 'playing') return;
 
-        const newGrid = grid.map(row =>
-            row.map(cell => ({ ...cell }))
-        );
-
+        const newGrid = [...grid];
         const cell = newGrid[row][col];
         if (cell.isRevealed) return; // Can't flag a revealed cell
 
-        cell.isFlagged = !cell.isFlagged; // Toggle flag state
+        // Only update the specific cell that changed
+        newGrid[row] = [...newGrid[row]];
+        newGrid[row][col] = { ...cell, isFlagged: !cell.isFlagged };
 
         // Update flags count
-        if (cell.isFlagged) {
+        if (!cell.isFlagged) {
             setFlags(flags - 1);
         } else {
             setFlags(flags + 1);
         }
-
 
         setGrid(newGrid);
     }
@@ -296,8 +347,6 @@ const Board = () => {
             const newGameState = checkGameState(newGrid);
             setGameState(newGameState);
 
-        } else {
-            console.log("should highlight adjacent cells that are unrevealed and not flagged");
         }
 
         setGrid(newGrid);
@@ -350,7 +399,7 @@ const Board = () => {
                         Restart
                     </Button>
                     <Heading size="md" ml={4} color="text-primary">
-                        {`${formattedTime} (${time}s)`}
+                        {`${time}s (${formattedTime})`}
                     </Heading>
                 </Flex>
 
@@ -389,7 +438,7 @@ const Board = () => {
 
                             <AlertDialogBody>
                                 {gameState === 'won'
-                                    ? `Time: ${formattedTime}`
+                                    ? `Time: ${time}s`
                                     : `Time: --`}
                             </AlertDialogBody>
 
