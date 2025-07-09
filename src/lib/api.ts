@@ -3,6 +3,8 @@ import {
 	LoginRequest,
 	AuthResponse,
 	UserStats,
+	CreateScoreRequest,
+	CreateScoreResponse,
 } from "@/types";
 
 const API_BASE = "/api";
@@ -56,11 +58,8 @@ export async function loginUser(
 }
 
 export async function createScore(
-	time: number,
-	difficulty: string,
-	gridSize: string,
-	mines: number
-): Promise<{ success: boolean; message: string }> {
+	scoreData: CreateScoreRequest
+): Promise<CreateScoreResponse> {
 	try {
 		const response = await fetch(`${API_BASE}/score/createScore`, {
 			method: "POST",
@@ -68,7 +67,7 @@ export async function createScore(
 				"Content-Type": "application/json",
 				Authorization: `Bearer ${getAuthToken()}`,
 			},
-			body: JSON.stringify({ time, difficulty, gridSize, mines }),
+			body: JSON.stringify(scoreData),
 		});
 
 		const data = await response.json();
