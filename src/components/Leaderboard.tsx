@@ -1,5 +1,5 @@
 import { getScoresByDifficulty } from '@/lib/api';
-import { Box, Heading, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
+import { Box, Heading, ListItem, OrderedList, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import { Score } from '@/types';
 import React, { useEffect, useState } from 'react'
 
@@ -22,8 +22,8 @@ const Leaderboard = () => {
                 const hardResponse = await getScoresByDifficulty('hard');
 
                 if (easyResponse.success && easyResponse.scores) {
-                    const mappedEasyData: LeaderBoardData[] = easyResponse.scores.map((score: Score) => ({
-                        username: String(score.username) || 'Unknown',
+                    const mappedEasyData: LeaderBoardData[] = easyResponse.scores.map((score: any) => ({
+                        username: score.user?.username || 'Unknown',
                         time: score.time,
                         date: new Date(score.createdAt)
                     }));
@@ -33,8 +33,8 @@ const Leaderboard = () => {
                 }
 
                 if (mediumResponse.success && mediumResponse.scores) {
-                    const mappedMediumData: LeaderBoardData[] = mediumResponse.scores.map((score: Score) => ({
-                        username: String(score.username) || 'Unknown',
+                    const mappedMediumData: LeaderBoardData[] = mediumResponse.scores.map((score: any) => ({
+                        username: score.user?.username || 'Unknown',
                         time: score.time,
                         date: new Date(score.createdAt)
                     }));
@@ -44,8 +44,8 @@ const Leaderboard = () => {
                 }
 
                 if (hardResponse.success && hardResponse.scores) {
-                    const mappedHardData: LeaderBoardData[] = hardResponse.scores.map((score: Score) => ({
-                        username: String(score.username) || 'Unknown',
+                    const mappedHardData: LeaderBoardData[] = hardResponse.scores.map((score: any) => ({
+                        username: score.user?.username || 'Unknown',
                         time: score.time,
                         date: new Date(score.createdAt)
                     }));
@@ -60,7 +60,7 @@ const Leaderboard = () => {
         }
 
         fetchLeaderboard();
-    }, [])
+    },)
 
     return (
         <Box bg="panel-bg" p={4} borderRadius="md" minW={'20%'}>
@@ -76,13 +76,43 @@ const Leaderboard = () => {
                     </TabList>
                     <TabPanels>
                         <TabPanel color="text-primary">
-                            Easy Leaderboard Content
+                            {easyData.length > 0 ? (
+                                <OrderedList>
+                                    {easyData.map((score, index) => (
+                                        <ListItem key={index}>
+                                            {score.username} - {score.time}s - {score.date.toLocaleDateString()}
+                                        </ListItem>
+                                    ))}
+                                </OrderedList>
+                            ) : (
+                                <p>No scores available for Easy difficulty.</p>
+                            )}
                         </TabPanel>
                         <TabPanel color="text-primary">
-                            Medium Leaderboard Content
+                            {mediumData.length > 0 ? (
+                                <OrderedList>
+                                    {mediumData.map((score, index) => (
+                                        <ListItem key={index}>
+                                            {score.username} - {score.time}s - {score.date.toLocaleDateString()}
+                                        </ListItem>
+                                    ))}
+                                </OrderedList>
+                            ) : (
+                                <p>No scores available for Medium difficulty.</p>
+                            )}
                         </TabPanel>
                         <TabPanel color="text-primary">
-                            Hard Leaderboard Content
+                            {hardData.length > 0 ? (
+                                <OrderedList>
+                                    {hardData.map((score, index) => (
+                                        <ListItem key={index}>
+                                            {score.username} - {score.time}s - {score.date.toLocaleDateString()}
+                                        </ListItem>
+                                    ))}
+                                </OrderedList>
+                            ) : (
+                                <p>No scores available for Hard difficulty.</p>
+                            )}
                         </TabPanel>
                     </TabPanels>
                 </Tabs>

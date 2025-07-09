@@ -18,7 +18,7 @@ export default async function handler(
 	}
 
 	try {
-		const { difficulty } = req.body;
+		const { difficulty } = req.query;
 
 		if (!difficulty || typeof difficulty !== "string") {
 			return res.status(400).json({

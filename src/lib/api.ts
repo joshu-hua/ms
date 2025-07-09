@@ -58,6 +58,34 @@ export async function loginUser(
 	}
 }
 
+// Store JWT token in localStorage
+export function storeAuthToken(token: string): void {
+	if (typeof window !== "undefined") {
+		localStorage.setItem("authToken", token);
+	}
+}
+
+// Get JWT token from localStorage
+export function getAuthToken(): string | null {
+	if (typeof window !== "undefined") {
+		return localStorage.getItem("authToken");
+	}
+	return null;
+}
+
+// Remove JWT token from localStorage
+export function removeAuthToken(): void {
+	if (typeof window !== "undefined") {
+		localStorage.removeItem("authToken");
+	}
+}
+
+// Check if user is logged in
+export function isLoggedIn(): boolean {
+	const token = getAuthToken();
+	return token !== null;
+}
+
 export async function createScore(
 	scoreData: CreateScoreRequest
 ): Promise<CreateScoreResponse> {
@@ -106,30 +134,27 @@ export async function updateUserStats(
 	}
 }
 
-// Store JWT token in localStorage
-export function storeAuthToken(token: string): void {
-	if (typeof window !== "undefined") {
-		localStorage.setItem("authToken", token);
-	}
-}
+export async function getScoresByDifficulty(
+	difficulty: string
+): Promise<{ success: boolean; scores?: any[]; message?: string }> {
+	try {
+		const response = await fetch(
+			`${API_BASE}/score/getScoresByDiff?difficulty=${difficulty}`,
+			{
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}
+		);
 
-// Get JWT token from localStorage
-export function getAuthToken(): string | null {
-	if (typeof window !== "undefined") {
-		return localStorage.getItem("authToken");
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error fetching scores:", error);
+		return {
+			success: false,
+			message: "Network error. Please try again.",
+		};
 	}
-	return null;
-}
-
-// Remove JWT token from localStorage
-export function removeAuthToken(): void {
-	if (typeof window !== "undefined") {
-		localStorage.removeItem("authToken");
-	}
-}
-
-// Check if user is logged in
-export function isLoggedIn(): boolean {
-	const token = getAuthToken();
-	return token !== null;
 }
