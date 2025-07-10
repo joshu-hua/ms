@@ -50,9 +50,10 @@ export default async function handler(
 
 			userId = decoded.userId;
 		} catch (error) {
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			return res.status(401).json({
 				success: false,
-				message: "Invalid or expired token",
+				message: "Invalid or expired token" + error,
 			});
 		}
 

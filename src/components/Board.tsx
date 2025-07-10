@@ -92,7 +92,7 @@ const Board = () => {
 
 
 
-    }, [gameState]);
+    }, [gameState]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Load difficulty from localStorage on component mount
     useEffect(() => {
@@ -117,7 +117,7 @@ const Board = () => {
 
         setGameSettings(currentSettings);
         resetGame(currentSettings.rows, currentSettings.cols, currentSettings.mines);
-    }, [difficulty]);
+    }, [difficulty]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // Open dialog when game ends
     useEffect(() => {

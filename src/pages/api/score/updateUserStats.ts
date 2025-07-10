@@ -35,6 +35,7 @@ export default async function handler(
 			};
 			userId = decoded.userId;
 		} catch (error) {
+			console.error("JWT verification failed:", error);
 			return res.status(401).json({
 				success: false,
 				message: "Invalid or expired token",

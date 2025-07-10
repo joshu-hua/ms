@@ -1,4 +1,4 @@
-import { useState, useReducer, useEffect } from "react";
+import { useState, useReducer } from "react";
 import { useRouter } from "next/router";
 import { loginUser, registerUser } from "@/lib/api";
 

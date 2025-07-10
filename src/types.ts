@@ -63,7 +63,7 @@ export interface Score {
 	gridSize: string;
 	mines: number;
 	createdAt: Date;
-	username?: String; // Optional user data when fetching scores
+	username?: string; // Optional user data when fetching scores
 }
 
 export interface CreateScoreRequest {
