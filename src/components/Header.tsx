@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Link } from '@chakra-ui/react'
+import { Box, Button, Flex, Heading, Link, Avatar } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
 import ColorModeToggle from './ColorModeToggle'
 import { isLoggedIn, removeAuthToken } from '@/lib/api'
@@ -26,7 +26,7 @@ const Header = () => {
                     {isClient && loggedIn ? (
                         <Button
                             colorScheme='red'
-                            variant='ghost'
+                            variant='solid'
                             onClick={() => {
                                 removeAuthToken()
                                 window.location.reload()
@@ -39,6 +39,7 @@ const Header = () => {
                     ) : null}
 
                     <ColorModeToggle />
+                    <Avatar as="button" size="sm" />
                 </Flex>
             </Flex>
         </Box>
