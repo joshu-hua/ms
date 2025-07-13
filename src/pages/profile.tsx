@@ -1,8 +1,12 @@
 import Header from '@/components/Header'
+import Navbar from '@/components/navbar'
 import { Flex, Box } from '@chakra-ui/react'
 import React from 'react'
 
+
 const Profile = () => {
+    const linkas = ["hi", "bye", "asdf", "qwer", "zxcv", "test", "profile", "settings", "logout"];
+
     return (
         <>
             <Header />
@@ -21,6 +25,7 @@ const Profile = () => {
                             justify="center"
                             gap={4}
                         >
+
                             <Box
                                 as="h1"
                                 fontSize="2xl"
@@ -29,9 +34,10 @@ const Profile = () => {
                             >
                                 User name
                             </Box>
-                            <Box color="text-secondary">
-                                This is your profile page. Here you can view and manage your account details.
-                            </Box>
+                            <Flex>
+                                <Navbar links={linkas} current="hi" />
+
+                            </Flex>
                         </Flex>
 
                     </Box>
