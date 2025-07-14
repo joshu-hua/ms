@@ -86,6 +86,58 @@ export function isLoggedIn(): boolean {
 	return token !== null;
 }
 
+// Decode JWT token to extract user information
+export function decodeAuthToken(): {
+	userId: number;
+	email: string;
+	username: string;
+} | null {
+	const token = getAuthToken();
+	if (!token) return null;
+
+	try {
+		// JWT tokens have 3 parts separated by dots: header.payload.signature
+		const base64Url = token.split(".")[1];
+		const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+		const jsonPayload = decodeURIComponent(
+			atob(base64)
+				.split("")
+				.map(function (c) {
+					return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+				})
+				.join("")
+		);
+
+		const decoded = JSON.parse(jsonPayload);
+		return {
+			userId: decoded.userId,
+			email: decoded.email,
+			username: decoded.username,
+		};
+	} catch (error) {
+		console.error("Error decoding token:", error);
+		return null;
+	}
+}
+
+// Get current user's username
+export function getCurrentUsername(): string | null {
+	const decoded = decodeAuthToken();
+	return decoded ? decoded.username : null;
+}
+
+// Get current user's email
+export function getCurrentUserEmail(): string | null {
+	const decoded = decodeAuthToken();
+	return decoded ? decoded.email : null;
+}
+
+// Get current user's ID
+export function getCurrentUserId(): number | null {
+	const decoded = decodeAuthToken();
+	return decoded ? decoded.userId : null;
+}
+
 export async function createScore(
 	scoreData: CreateScoreRequest
 ): Promise<CreateScoreResponse> {
