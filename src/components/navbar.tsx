@@ -1,5 +1,6 @@
 import React from 'react'
-import { Box, Flex, Link, StackDivider, VStack } from '@chakra-ui/react'
+import { Box, Link, StackDivider, VStack } from '@chakra-ui/react'
+import NextLink from 'next/link'
 
 interface NavbarProps {
     links: string[];
@@ -11,15 +12,17 @@ const Navbar = ({ links, current }: NavbarProps) => {
         <Box as="nav" border="1px solid" borderColor="border-color" borderRadius="md" p={4} bg="surface-bg">
             <VStack align="start" divider={<StackDivider borderColor="gray.200" />}>
                 {links.map((link, index) => (
-                    <Link
-                        key={index}
-                        href={`/profile/${link.toLowerCase()}`}
-                        px={4}
-                        borderRadius="md"
-                        color={current === link ? "blue.500" : "gray.600"}
-                        fontWeight={current === link ? "bold" : "normal"}                    >
-                        {link}
-                    </Link>
+                    <NextLink key={index} href={`/profile/${link.toLowerCase()}`} passHref>
+                        <Link
+                            px={4}
+                            borderRadius="md"
+                            color={current === link ? "blue.500" : "gray.600"}
+                            fontWeight={current === link ? "bold" : "normal"}
+                            textDecoration="none"
+                        >
+                            {link}
+                        </Link>
+                    </NextLink>
                 ))}
             </VStack>
         </Box>
