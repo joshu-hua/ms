@@ -123,6 +123,9 @@ const Leaderboard = () => {
             <Heading size="lg" mb={4} textAlign="center" color="text-primary">
                 Leaderboard
             </Heading>
+            <Text mb={4} color="text-secondary" textAlign="center">
+                Register to appear on the leaderboard
+            </Text>
             <Box>
                 <Tabs variant="soft-rounded">
                     <TabList>

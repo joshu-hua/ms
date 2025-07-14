@@ -2,15 +2,23 @@ import Header from '@/components/Header'
 import Navbar from '@/components/navbar'
 import { Flex, Box, Text } from '@chakra-ui/react'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { getCurrentUsername } from '@/lib/api'
 
 const ProfileTab = () => {
     const router = useRouter();
     const { tab } = router.query;
     const links = ["Stats", "Settings"];
+    const [username, setUsername] = useState<string | null>(null);
 
     // Capitalize the current tab for display
     const currentTab = typeof tab === 'string' ? tab.charAt(0).toUpperCase() + tab.slice(1) : 'Stats';
+
+    useEffect(() => {
+        // Get username from JWT token when component mounts
+        const currentUsername = getCurrentUsername();
+        setUsername(currentUsername);
+    }, []);
 
     const renderTabContent = () => {
         switch (tab) {
@@ -62,7 +70,7 @@ const ProfileTab = () => {
                                 fontWeight="bold"
                                 color="text-primary"
                             >
-                                User Profile
+                                {username ? `${username}'s Profile` : 'User Profile'}
                             </Box>
 
                             <Flex direction="row" gap={6} align="start" w="100%">

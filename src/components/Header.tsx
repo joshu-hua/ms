@@ -1,18 +1,25 @@
-import { Box, Button, Flex, Heading, Link, Avatar } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Link, Avatar, Text } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import ColorModeToggle from "./ColorModeToggle";
-import { isLoggedIn, removeAuthToken } from "@/lib/api";
+import { isLoggedIn, removeAuthToken, getCurrentUsername } from "@/lib/api";
 import { useRouter } from "next/router";
 
 const Header = () => {
     const [isClient, setIsClient] = useState(false);
     const [loggedIn, setLoggedIn] = useState(false);
+    const [username, setUsername] = useState<string | null>(null);
 
     const router = useRouter();
 
     useEffect(() => {
         setIsClient(true);
-        setLoggedIn(isLoggedIn());
+        const userLoggedIn = isLoggedIn();
+        setLoggedIn(userLoggedIn);
+
+        if (userLoggedIn) {
+            const currentUsername = getCurrentUsername();
+            setUsername(currentUsername);
+        }
     }, []);
 
     return (
@@ -35,23 +42,40 @@ const Header = () => {
                 </Link>
                 <Flex gap={4} align="center">
                     {isClient && loggedIn ? (
-                        <Button
-                            colorScheme="red"
-                            size={"sm"}
-                            variant="solid"
-                            onClick={() => {
-                                removeAuthToken();
-                                window.location.reload();
-                            }}
-                        >
-                            Logout
-                        </Button>
+                        <>
+                            {username && (
+                                <Text fontSize="sm" color="text-secondary">
+                                    Welcome, {username}
+                                </Text>
+                            )}
+                            <Button
+                                colorScheme="red"
+                                size={"sm"}
+                                variant="solid"
+                                onClick={() => {
+                                    removeAuthToken();
+                                    window.location.reload();
+                                }}
+                            >
+                                Logout
+                            </Button>
+                        </>
                     ) : isClient ? (
                         <Link href="/userauth">Login/Register</Link>
                     ) : null}
 
                     <ColorModeToggle />
-                    <Avatar as="button" size="sm" onClick={() => { router.push("/profile") }} />
+                    <Avatar
+                        as="button"
+                        size="sm"
+                        onClick={() => {
+                            if (loggedIn) {
+                                router.push("/profile/stats");
+                            } else {
+                                router.push("/");
+                            }
+                        }}
+                    />
                 </Flex>
             </Flex>
         </Box>
