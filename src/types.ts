@@ -105,3 +105,13 @@ export interface AuthResponse {
 	user?: User;
 	token?: string;
 }
+
+export interface GetUserStatsResponse {
+	success: boolean;
+	message: string;
+	stats?: UserStats[];
+	user?: {
+		id: number;
+		username: string;
+	};
+}

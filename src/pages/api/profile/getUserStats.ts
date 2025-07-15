@@ -1,16 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "@/lib/db";
-import { UserStats } from "@/types";
-
-interface GetUserStatsResponse {
-	success: boolean;
-	message: string;
-	stats?: UserStats[];
-	user?: {
-		id: number;
-		username: string;
-	};
-}
+import { GetUserStatsResponse } from "@/types";
 
 export default async function handler(
 	req: NextApiRequest,

@@ -6,6 +6,7 @@ import {
 	CreateScoreRequest,
 	CreateScoreResponse,
 	UpdateStatsRequest,
+	GetUserStatsResponse,
 } from "@/types";
 
 const API_BASE = "/api";
@@ -126,16 +127,16 @@ export function getCurrentUsername(): string | null {
 	return decoded ? decoded.username : null;
 }
 
-// Get current user's email
-export function getCurrentUserEmail(): string | null {
-	const decoded = decodeAuthToken();
-	return decoded ? decoded.email : null;
-}
-
 // Get current user's ID
 export function getCurrentUserId(): number | null {
 	const decoded = decodeAuthToken();
 	return decoded ? decoded.userId : null;
+}
+
+// Get current user's email
+export function getCurrentUserEmail(): string | null {
+	const decoded = decodeAuthToken();
+	return decoded ? decoded.email : null;
 }
 
 export async function createScore(
@@ -204,6 +205,33 @@ export async function getScoresByDifficulty(
 		return data;
 	} catch (error) {
 		console.error("Error fetching scores:", error);
+		return {
+			success: false,
+			message: "Network error. Please try again.",
+		};
+	}
+}
+
+// Get user statistics
+export async function getUserStats(
+	userId?: number
+): Promise<GetUserStatsResponse> {
+	try {
+		const url = userId
+			? `${API_BASE}/profile/getUserStats?userId=${userId}`
+			: `${API_BASE}/profile/getUserStats`;
+
+		const response = await fetch(url, {
+			method: "GET",
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
+
+		const data: GetUserStatsResponse = await response.json();
+		return data;
+	} catch (error) {
+		console.error("Error fetching user stats:", error);
 		return {
 			success: false,
 			message: "Network error. Please try again.",
